@@ -3,13 +3,14 @@
 const express = require("express");
 const users = require("../users/users-model");
 
-const { 
-  checkUsernameFree, 
-  checkUsernameExists, 
-  checkPasswordLength  
-} = require("./auth-middleware");
+// const { 
+//   checkUsernameFree, 
+//   checkUsernameExists, 
+//   checkPasswordLength  
+// } = require("./auth-middleware");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
+
 /**
   1 [POST] /api/auth/register { "username": "sue", "password": "1234" }
 
@@ -111,7 +112,9 @@ router.get("/logout", async (req, res, next) => {
 			if (err) {
 				next(err)
 			} else {
-				res.status(204).end()
+				res.status(200).json({
+          message: "no session"
+        })
 			}
 		})
   } catch(err) {
