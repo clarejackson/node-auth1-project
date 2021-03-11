@@ -1,3 +1,4 @@
+
 /*
   If the user does not have a session saved in the server
 
@@ -7,8 +8,21 @@
   }
 */
 function restricted() {
-
+  return async (req, res, next) => {
+		try {
+			if (!req.session || !req.session.user) {
+					return res.status(401).json({
+						message: "You shall not pass!",
+					})
+			} 
+			
+			next()
+		} catch (err) {
+			next(err)
+		}
+	}
 }
+
 
 /*
   If the username in req.body already exists in the database
@@ -47,3 +61,9 @@ function checkPasswordLength() {
 }
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
+module.exports = {
+	restricted,
+  checkUsernameFree,
+  checkUsernameExists,
+  checkPasswordLength,
+}
