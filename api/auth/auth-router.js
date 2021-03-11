@@ -3,11 +3,11 @@
 const express = require("express");
 const users = require("../users/users-model");
 
-// const { 
-//   checkUsernameFree, 
-//   checkUsernameExists, 
-//   checkPasswordLength  
-// } = require("./auth-middleware");
+const { 
+  checkUsernameFree, 
+  checkUsernameExists, 
+  checkPasswordLength  
+} = require("./auth-middleware");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 
@@ -33,12 +33,13 @@ const router = express.Router();
     "message": "Password must be longer than 3 chars"
   }
  */
-router.post("/register", async (req, res, next) => {
+router.post("/register", checkPasswordLength(), checkUsernameFree(), async (req, res, next) => {
   try {
     const { username, password } = req.body
+    const hashPass = await bcrypt.hash(password, 14)
     const newUser = await users.add({ 
       username,
-      password: await bcrypt.hash(password, 14),
+      password: hashPass
      })
 
      res.status(200).json(newUser)
@@ -62,20 +63,21 @@ router.post("/register", async (req, res, next) => {
     "message": "Invalid credentials"
   }
  */
-router.post("/login", async (req, res, next) => {
+router.post("/login", checkUsernameExists(), async (req, res, next) => {
   try {
     const { username, password } = req.body
-		const user = await users.findBy({ username }).first()
-
-		const passwordValid = await bcrypt.compare(password, user.password)
-
+    // console.log(username)
+		const user = await users.findBy({ username })
+    // console.log(user)
+		const passwordValid = await bcrypt.compare(password, user[0].password)
+    // console.log(passwordValid)
     if(!passwordValid){
       return res.status(401).json({
          message: 'Invalid credentials'
        })
      }
-
-		req.session.user = user
+     // initializing the named cookie here
+		req.session.chocolatechip = user
 
 		res.json({
 			message: `Welcome ${user.username}!`,
@@ -106,8 +108,8 @@ router.get("/logout", async (req, res, next) => {
       return res.status(200).json({
         message: "logged out"
       })
-    }
-
+    } 
+    
     req.session.destroy((err) => {
 			if (err) {
 				next(err)
@@ -115,7 +117,7 @@ router.get("/logout", async (req, res, next) => {
 				res.status(200).json({
           message: "no session"
         })
-			}
+			} 
 		})
   } catch(err) {
     next(err)

@@ -1,4 +1,4 @@
-
+const model = require("../users/users-model")
 /*
   If the user does not have a session saved in the server
 
@@ -33,7 +33,22 @@ function restricted() {
   }
 */
 function checkUsernameFree() {
-
+return async (req, res, next) => {
+  try {
+    
+    const { username } = req.body
+    const user = await model.findBy({ username })
+    // console.log(user)
+    if (user.length > 0) {
+      return res.status(422).json({
+        message:"Username taken"
+      })
+    }
+    next()
+  } catch(err) {
+    next(err)
+  }
+}
 }
 
 /*
@@ -45,8 +60,22 @@ function checkUsernameFree() {
   }
 */
 function checkUsernameExists() {
+  return async (req, res, next) => {
+    try {
+      const { username } = req.body
+    const user = await model.findBy({ username })
+    if (user.length < 1) {
+      return res.status(401).json({
+        message:"Invalid credentials"
+      })
+    }
+    next()
+    } catch(err) {
+      next(err)
+    }
+  }
+  }
 
-}
 
 /*
   If password is missing from req.body, or if it's 3 chars or shorter
@@ -57,8 +86,23 @@ function checkUsernameExists() {
   }
 */
 function checkPasswordLength() {
+  return (req, res, next) => {
+    try {
+      // console.log(req.body.password)
+      if (!req.body.password || req.body.password <= 3) {
+        return res.status(422).json({
+          message: "Password must be longer than 3 chars"
+        })
+      }
+        // console.log(req.body.password)
+      next()
+    
+    } catch(err) {
+      next(err)
+    }
+  }
+  } 
 
-}
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
 module.exports = {

@@ -26,6 +26,7 @@ server.use(helmet());
 server.use(express.json());
 server.use(cors());
 server.use(session({
+  name: "chocolatechip",
   resave: false, // avoid recreating sessions that have not changed
   saveUninitialized: false, // for laws against setting cookies automatically
   secret: "keep it secret keep it safe", // cryptographically sign the session/cookie
