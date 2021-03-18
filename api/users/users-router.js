@@ -29,6 +29,7 @@ const router = express.Router();
  */
 router.get("/", restricted(), async (req, res, next) => {
   try {
+    // console.log(req)
     res.json(await users.find())
   } catch(err) {
     next(err)

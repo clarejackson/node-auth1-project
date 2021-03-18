@@ -3,6 +3,7 @@
 const express = require("express");
 const users = require("../users/users-model");
 
+
 const { 
   checkUsernameFree, 
   checkUsernameExists, 
@@ -36,12 +37,12 @@ const router = express.Router();
 router.post("/register", checkPasswordLength(), checkUsernameFree(), async (req, res, next) => {
   try {
     const { username, password } = req.body
-    const hashPass = await bcrypt.hash(password, 14)
+    const hashPass = await bcrypt.hash(password, 4)
     const newUser = await users.add({ 
       username,
       password: hashPass
      })
-
+     console.log(newUser)
      res.status(200).json(newUser)
   } catch(err) {
     next(err)
@@ -80,7 +81,7 @@ router.post("/login", checkUsernameExists(), async (req, res, next) => {
 		req.session.chocolatechip = user
 
 		res.json({
-			message: `Welcome ${user.username}!`,
+			message: `Welcome ${user[0].username}!`,
 		})
 	} catch(err) {
 		next(err)
@@ -104,9 +105,10 @@ router.post("/login", checkUsernameExists(), async (req, res, next) => {
  */
 router.get("/logout", async (req, res, next) => {
   try {
-    if (!req.session.user) {
+    if (!req.session.chocolatechip && !req.session.name || !req.session ) {
+      // console.log(req.session)
       return res.status(200).json({
-        message: "logged out"
+        message: "no session"
       })
     } 
     
@@ -115,7 +117,7 @@ router.get("/logout", async (req, res, next) => {
 				next(err)
 			} else {
 				res.status(200).json({
-          message: "no session"
+          message: "logged out"
         })
 			} 
 		})

@@ -10,7 +10,8 @@ const model = require("../users/users-model")
 function restricted() {
   return async (req, res, next) => {
 		try {
-			if (!req.session || !req.session.user) {
+			if (!req.session || !req.session.chocolatechip) {
+        // console.log(req.session.user)
 					return res.status(401).json({
 						message: "You shall not pass!",
 					})
